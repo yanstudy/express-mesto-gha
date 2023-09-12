@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const userModel = require("../models/user");
+const VALIDATIONERROR_CODE = 400;
+const SERVERERROR_CODE = 500;
 
 // Создание пользователя
 const createUser = (req, res) => {
@@ -10,9 +12,10 @@ const createUser = (req, res) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(400).send({ message: err.message });
+        return res.status(VALIDATIONERROR_CODE).send({ message: err.message });
+      } else {
+        return res.status(SERVERERROR_CODE).send({ message: "Server error" });
       }
-      return res.status(500).send({ message: "Server error" });
     });
 };
 
@@ -24,7 +27,7 @@ const getUsers = (req, res) => {
       return res.status(200).send(users);
     })
     .catch((err) => {
-      return res.status(500).send({ message: "Server error" });
+      return res.status(SERVERERROR_CODE).send({ message: "Server error" });
     });
 };
 // Получить пользователя по id
@@ -37,14 +40,16 @@ const getUserById = (req, res) => {
         return res
           .status(404)
           .send({ message: "Запрашиваемый пользователь не найден" });
+      } else {
+        return res.status(200).send(user);
       }
-      return res.status(200).send(user);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        return res.status(400).send({ message: err.message });
+        return res.status(VALIDATIONERROR_CODE).send({ message: err.message });
+      } else {
+        return res.status(SERVERERROR_CODE).send({ message: "Server error" });
       }
-      return res.status(500).send({ message: "Server error" });
     });
 };
 
@@ -58,9 +63,10 @@ const updateUser = (req, res) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(400).send({ message: err.message });
+        return res.status(VALIDATIONERROR_CODE).send({ message: err.message });
+      } else {
+        return res.status(SERVERERROR_CODE).send({ message: "Server error" });
       }
-      return res.status(500).send({ message: "Server error" });
     });
 };
 
@@ -74,9 +80,10 @@ const updateAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(400).send({ message: err.message });
+        return res.status(VALIDATIONERROR_CODE).send({ message: err.message });
+      } else {
+        return res.status(SERVERERROR_CODE).send({ message: "Server error" });
       }
-      return res.status(500).send({ message: "Server error" });
     });
 };
 

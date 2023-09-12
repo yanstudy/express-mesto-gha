@@ -23,27 +23,31 @@ const createCard = (req, res) => {
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         return res.status(400).send({ message: err.message });
+      } else {
+        return res.status(500).send({ message: "Server error" });
       }
-      return res.status(500).send({ message: "Server error" });
     });
 };
 
 // Удалить карточку
 const deleteCardById = (req, res) => {
   const { cardId } = req.params;
+  const userId = req.user._id;
   cardsModel
     .findByIdAndDelete(cardId)
-    .then((user) => {
-      if (!user) {
+    .then((card) => {
+      if (!card) {
         return res.status(404).send({ message: "Карточка не найдена" });
+      } else {
+        return res.status(200).send({ message: "Карточка успешно удалена" });
       }
-      return res.status(200).send({ message: "Карточка успешно удалена" });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         return res.status(400).send({ message: err.message });
+      } else {
+        return res.status(500).send({ message: "Server error" });
       }
-      return res.status(500).send({ message: "Server error" });
     });
 };
 
@@ -55,11 +59,15 @@ const addLike = (req, res) => {
       { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
       { new: true }
     )
+    .then((like) => {
+      return res.status(201).send(like);
+    })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         return res.status(400).send({ message: err.message });
+      } else {
+        return res.status(500).send({ message: "Server error" });
       }
-      return res.status(500).send({ message: "Server error" });
     });
 };
 
@@ -71,11 +79,15 @@ const deleteLike = (req, res) => {
       { $pull: { likes: req.user._id } }, // убрать _id из массива
       { new: true }
     )
+    .then((like) => {
+      return res.status(201).send(like);
+    })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         return res.status(400).send({ message: err.message });
+      } else {
+        return res.status(500).send({ message: "Server error" });
       }
-      return res.status(500).send({ message: "Server error" });
     });
 };
 
