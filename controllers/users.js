@@ -70,7 +70,7 @@ const updateAvatar = (req, res) => {
   userModel
     .findByIdAndUpdate(userId, req.body, { new: true, runValidators: true })
     .then((avatar) => {
-      return res.status(201).send(avatar);
+      return res.status(200).send(avatar);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
