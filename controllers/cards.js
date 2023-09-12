@@ -54,6 +54,11 @@ const deleteCardById = (req, res) => {
 // Поставить лайк карточке
 const addLike = (req, res) => {
   const { cardId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(cardId)) {
+    return res.status(400).send({ message: "Карточка не найдена" });
+  }
+
   cardsModel
     .findById(cardId)
     .then((card) => {
@@ -82,6 +87,11 @@ const addLike = (req, res) => {
 // Убрать лайк с карточки
 const deleteLike = (req, res) => {
   const { cardId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(cardId)) {
+    return res.status(400).send({ message: "Карточка не найдена" });
+  }
+
   cardsModel
     .findById(cardId)
     .then((card) => {
