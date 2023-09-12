@@ -50,10 +50,11 @@ const getUserById = (req, res) => {
 
 // Обновить информацию о пользователе
 const updateUser = (req, res) => {
+  const userId = req.user._id;
   userModel
-    .updateOne(req.body)
+    .findByIdAndUpdate(userId, req.body, { new: true, runValidators: true })
     .then((user) => {
-      return res.status(201).send(user);
+      return res.status(200).send(user);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
@@ -65,8 +66,9 @@ const updateUser = (req, res) => {
 
 // Обновить аватар
 const updateAvatar = (req, res) => {
+  const userId = req.user._id;
   userModel
-    .updateOne(req.body)
+    .findByIdAndUpdate(userId, req.body, { new: true, runValidators: true })
     .then((avatar) => {
       return res.status(201).send(avatar);
     })
