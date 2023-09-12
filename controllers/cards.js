@@ -53,12 +53,20 @@ const deleteCardById = (req, res) => {
 
 // Поставить лайк карточке
 const addLike = (req, res) => {
+  const { cardId } = req.params;
   cardsModel
-    .findByIdAndUpdate(
-      req.params.cardId,
-      { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-      { new: true }
-    )
+    .findById(cardId)
+    .then((card) => {
+      if (!card) {
+        return res.status(404).send({ message: "Карточка не найдена" });
+      }
+
+      return cardsModel.findByIdAndUpdate(
+        cardId,
+        { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+        { new: true }
+      );
+    })
     .then((like) => {
       return res.status(201).send(like);
     })
@@ -73,14 +81,22 @@ const addLike = (req, res) => {
 
 // Убрать лайк с карточки
 const deleteLike = (req, res) => {
+  const { cardId } = req.params;
   cardsModel
-    .findByIdAndUpdate(
-      req.params.cardId,
-      { $pull: { likes: req.user._id } }, // убрать _id из массива
-      { new: true }
-    )
+    .findById(cardId)
+    .then((card) => {
+      if (!card) {
+        return res.status(404).send({ message: "Карточка не найдена" });
+      }
+
+      return cardsModel.findByIdAndUpdate(
+        cardId,
+        { $pull: { likes: req.user._id } }, // убрать _id из массива
+        { new: true }
+      );
+    })
     .then((like) => {
-      return res.status(201).send(like);
+      return res.status(200).send(like);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
