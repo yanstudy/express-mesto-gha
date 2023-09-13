@@ -1,24 +1,27 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const appRouter = require("./routes/index");
+const express = require('express');
+const mongoose = require('mongoose');
+const helmet = require('helmet');
+const appRouter = require('./routes/index');
+
+const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
 // База данных
 mongoose
-  .connect("mongodb://127.0.0.1/mestodb", {
+  .connect(DB_URL, {
     useNewUrlParser: true,
   })
-  .then(() => console.log("Connected to db"));
+  .then(() => console.log('Connected to db'));
 
 const app = express();
-const { PORT = 3000 } = process.env;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(helmet());
 
 // Авторизация (временное решение)
 app.use((req, res, next) => {
   req.user = {
-    _id: "64ff096302264654f3ed37a5",
+    _id: '64ff096302264654f3ed37a5',
   };
 
   next();

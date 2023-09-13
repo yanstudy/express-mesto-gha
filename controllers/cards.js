@@ -1,15 +1,15 @@
-const mongoose = require("mongoose");
-const cardsModel = require("../models/card");
+const mongoose = require('mongoose');
+const cardsModel = require('../models/card');
 
 // Получить все карточки
 const getCards = (req, res) => {
   cardsModel
     .find({})
     .then((cards) => {
-      return res.status(200).send(cards);
+      res.status(200).send(cards);
     })
-    .catch((err) => {
-      return res.status(500).send({ message: "Server error" });
+    .catch(() => {
+      res.status(500).send({ message: 'Server error' });
     });
 };
 
@@ -18,13 +18,13 @@ const createCard = (req, res) => {
   cardsModel
     .create({ owner: req.user._id, ...req.body })
     .then((card) => {
-      return res.status(201).send(card);
+      res.status(201).send(card);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(400).send({ message: err.message });
+        res.status(400).send({ message: err.message });
       } else {
-        return res.status(500).send({ message: "Server error" });
+        res.status(500).send({ message: 'Server error' });
       }
     });
 };
@@ -32,21 +32,19 @@ const createCard = (req, res) => {
 // Удалить карточку
 const deleteCardById = (req, res) => {
   const { cardId } = req.params;
-  const userId = req.user._id;
   cardsModel
     .findByIdAndDelete(cardId)
-    .then((card) => {
-      if (!card) {
-        return res.status(404).send({ message: "Карточка не найдена" });
-      } else {
-        return res.status(200).send({ message: "Карточка успешно удалена" });
-      }
+    .orFail(new Error('NotValidId'))
+    .then(() => {
+      res.status(200).send({ message: 'Карточка успешно удалена' });
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        return res.status(400).send({ message: err.message });
+      if (err.message === 'NotValidId') {
+        res.status(404).send({ message: 'Карточка не найдена' });
+      } else if (err instanceof mongoose.Error.CastError) {
+        res.status(400).send({ message: err.message });
       } else {
-        return res.status(500).send({ message: "Server error" });
+        res.status(500).send({ message: 'Server error' });
       }
     });
 };
@@ -56,30 +54,27 @@ const addLike = (req, res) => {
   const { cardId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(cardId)) {
-    return res.status(400).send({ message: "Карточка не найдена" });
+    return res.status(400).send({ message: 'Карточка не найдена' });
   }
 
-  cardsModel
+  return cardsModel
     .findById(cardId)
-    .then((card) => {
-      if (!card) {
-        return res.status(404).send({ message: "Карточка не найдена" });
-      }
-
-      return cardsModel.findByIdAndUpdate(
-        cardId,
-        { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-        { new: true }
-      );
-    })
+    .orFail(new Error('NotValidId'))
+    .then(() => (cardsModel.findByIdAndUpdate(
+      cardId,
+      { $addToSet: { likes: req.user._id } },
+      { new: true },
+    )))
     .then((like) => {
-      return res.status(201).send(like);
+      res.status(201).send(like);
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(400).send({ message: err.message });
+      if (err.message === 'NotValidId') {
+        res.status(404).send({ message: 'Карточка не найдена' });
+      } else if (err instanceof mongoose.Error.ValidationError) {
+        res.status(400).send({ message: err.message });
       } else {
-        return res.status(500).send({ message: "Server error" });
+        res.status(500).send({ message: 'Server error' });
       }
     });
 };
@@ -89,30 +84,27 @@ const deleteLike = (req, res) => {
   const { cardId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(cardId)) {
-    return res.status(400).send({ message: "Карточка не найдена" });
+    res.status(400).send({ message: 'Карточка не найдена' });
   }
 
   cardsModel
     .findById(cardId)
-    .then((card) => {
-      if (!card) {
-        return res.status(404).send({ message: "Карточка не найдена" });
-      }
-
-      return cardsModel.findByIdAndUpdate(
-        cardId,
-        { $pull: { likes: req.user._id } }, // убрать _id из массива
-        { new: true }
-      );
-    })
+    .orFail(new Error('NotValidId'))
+    .then(() => (cardsModel.findByIdAndUpdate(
+      cardId,
+      { $pull: { likes: req.user._id } }, // убрать _id из массива
+      { new: true },
+    )))
     .then((like) => {
-      return res.status(200).send(like);
+      res.status(200).send(like);
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(400).send({ message: err.message });
+      if (err.message === 'NotValidId') {
+        res.status(404).send({ message: 'Карточка не найдена' });
+      } else if (err instanceof mongoose.Error.ValidationError) {
+        res.status(400).send({ message: err.message });
       } else {
-        return res.status(500).send({ message: "Server error" });
+        res.status(500).send({ message: 'Server error' });
       }
     });
 };

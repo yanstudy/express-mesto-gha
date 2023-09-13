@@ -1,5 +1,6 @@
-const mongoose = require("mongoose");
-const userModel = require("../models/user");
+const mongoose = require('mongoose');
+const userModel = require('../models/user');
+
 const VALIDATIONERROR_CODE = 400;
 const SERVERERROR_CODE = 500;
 
@@ -8,13 +9,13 @@ const createUser = (req, res) => {
   userModel
     .create(req.body)
     .then((user) => {
-      return res.status(201).send(user);
+      res.status(201).send(user);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(VALIDATIONERROR_CODE).send({ message: err.message });
+        res.status(VALIDATIONERROR_CODE).send({ message: err.message });
       } else {
-        return res.status(SERVERERROR_CODE).send({ message: "Server error" });
+        res.status(SERVERERROR_CODE).send({ message: 'Server error' });
       }
     });
 };
@@ -24,10 +25,10 @@ const getUsers = (req, res) => {
   userModel
     .find({})
     .then((users) => {
-      return res.status(200).send(users);
+      res.status(200).send(users);
     })
-    .catch((err) => {
-      return res.status(SERVERERROR_CODE).send({ message: "Server error" });
+    .catch(() => {
+      res.status(SERVERERROR_CODE).send({ message: 'Server error' });
     });
 };
 // Получить пользователя по id
@@ -35,20 +36,18 @@ const getUserById = (req, res) => {
   const { userId } = req.params;
   userModel
     .findById(userId)
+    .orFail(new Error('NotValidId'))
     .then((user) => {
-      if (!user) {
-        return res
-          .status(404)
-          .send({ message: "Запрашиваемый пользователь не найден" });
-      } else {
-        return res.status(200).send(user);
-      }
+      res.status(200).send(user);
     })
     .catch((err) => {
+      if (err.message === 'NotValidId') {
+        res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+      }
       if (err instanceof mongoose.Error.CastError) {
-        return res.status(VALIDATIONERROR_CODE).send({ message: err.message });
+        res.status(VALIDATIONERROR_CODE).send({ message: err.message });
       } else {
-        return res.status(SERVERERROR_CODE).send({ message: "Server error" });
+        res.status(SERVERERROR_CODE).send({ message: 'Server error' });
       }
     });
 };
@@ -59,13 +58,13 @@ const updateUser = (req, res) => {
   userModel
     .findByIdAndUpdate(userId, req.body, { new: true, runValidators: true })
     .then((user) => {
-      return res.status(200).send(user);
+      res.status(200).send(user);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(VALIDATIONERROR_CODE).send({ message: err.message });
+        res.status(VALIDATIONERROR_CODE).send({ message: err.message });
       } else {
-        return res.status(SERVERERROR_CODE).send({ message: "Server error" });
+        res.status(SERVERERROR_CODE).send({ message: 'Server error' });
       }
     });
 };
@@ -76,13 +75,13 @@ const updateAvatar = (req, res) => {
   userModel
     .findByIdAndUpdate(userId, req.body, { new: true, runValidators: true })
     .then((avatar) => {
-      return res.status(200).send(avatar);
+      res.status(200).send(avatar);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        return res.status(VALIDATIONERROR_CODE).send({ message: err.message });
+        res.status(VALIDATIONERROR_CODE).send({ message: err.message });
       } else {
-        return res.status(SERVERERROR_CODE).send({ message: "Server error" });
+        res.status(SERVERERROR_CODE).send({ message: 'Server error' });
       }
     });
 };
