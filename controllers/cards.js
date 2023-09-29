@@ -32,19 +32,28 @@ const createCard = (req, res) => {
 // Удалить карточку
 const deleteCardById = (req, res) => {
   const { cardId } = req.params;
-  cardsModel
-    .findByIdAndDelete(cardId)
-    .orFail(new Error('NotValidId'))
-    .then(() => {
-      res.status(200).send({ message: 'Карточка успешно удалена' });
-    })
-    .catch((err) => {
-      if (err.message === 'NotValidId') {
-        res.status(404).send({ message: 'Карточка не найдена' });
-      } else if (err instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: err.message });
+  const owner = req.user._id;
+
+  cardsModel.findById(cardId)
+    .then((currentCard) => {
+      if (currentCard.owner.toString() === owner) {
+        cardsModel
+          .findByIdAndDelete(cardId)
+          .orFail(new Error('NotValidId'))
+          .then(() => {
+            res.status(200).send({ message: 'Карточка успешно удалена' });
+          })
+          .catch((err) => {
+            if (err.message === 'NotValidId') {
+              res.status(404).send({ message: 'Карточка не найдена' });
+            } else if (err instanceof mongoose.Error.CastError) {
+              res.status(400).send({ message: err.message });
+            } else {
+              res.status(500).send({ message: 'Server error' });
+            }
+          });
       } else {
-        res.status(500).send({ message: 'Server error' });
+        res.status(403).send({ message: 'Отсутствуют права на удаление этой карточки' });
       }
     });
 };

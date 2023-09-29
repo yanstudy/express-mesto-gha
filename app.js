@@ -1,7 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
+
 const appRouter = require('./routes/index');
+const { login, createUser } = require('./controllers/users');
+const auth = require('./middlewares/auth');
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
@@ -17,15 +21,14 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
+app.use(cookieParser());
 
-// Авторизация (временное решение)
-app.use((req, res, next) => {
-  req.user = {
-    _id: '64ff096302264654f3ed37a5',
-  };
+// Незащищённые роуты
+app.post('/signin', login);
+app.post('/signup', createUser);
 
-  next();
-});
+// Авторизация
+app.use(auth);
 
 app.use(appRouter);
 
