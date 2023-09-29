@@ -23,7 +23,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(cookieParser());
-app.use(errors());
 
 // Незащищённые роуты
 app.post('/signin', celebrate({
@@ -44,6 +43,7 @@ app.use(auth);
 
 app.use(appRouter);
 
+app.use(errors());
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });

@@ -10,16 +10,20 @@ const { JWT_SECRET = 'some-secret-key' } = process.env;
 
 // Создание пользователя
 const createUser = (req, res) => {
-  const { email, password } = req.body;
+  const {
+    email, password, name, about, avatar,
+  } = req.body;
 
   if (!email || !password) res.status(VALIDATIONERROR_CODE).send({ message: 'логин или пароль отсутствует' });
 
   bcrypt.hash(password, SAULT_ROUNDS, (error, hash) => {
     userModel.findOne({ email })
       .then((user) => {
-        if (user) return res.status(409).send({ message: 'Такой пользователь уже существует' });
+        if (user) return res.status(409).send({ message: 'Такой пользователь уже существует' }).send(user);
 
-        return userModel.create({ email, password: hash, ...req.body })
+        return userModel.create({
+          email, password: hash, name, about, avatar,
+        })
           .then((newUser) => {
             res.status(201).send(newUser);
           })
@@ -127,7 +131,7 @@ const login = (req, res) => {
 
   return userModel.findOne({ email }).select('+password')
     .then((user) => {
-      if (!user) return res.status(401).send({ message: 'Такого пользователя не существует' });
+      if (!user) return res.status(400).send({ message: 'Такого пользователя не существует' });
       return bcrypt.compare(password, user.password)
         .then((isValidPassword) => {
           if (!isValidPassword) return res.status(401).send({ message: 'Логин или пароль неправильный' });
