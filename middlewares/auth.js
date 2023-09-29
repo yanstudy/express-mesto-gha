@@ -1,10 +1,8 @@
 const jwt = require('jsonwebtoken');
 
-const handleAuthError = (res) => {
-  res
-    .status(401)
-    .send({ message: 'Необходима авторизация' });
-};
+const handleAuthError = (res) => res
+  .status(401)
+  .send({ message: 'Необходима авторизация' });
 
 const extractBearerToken = (header) => header.replace('Bearer ', '');
 
@@ -26,5 +24,5 @@ module.exports = (req, res, next) => {
 
   req.user = payload; // записываем пейлоуд в объект запроса
 
-  next(); // пропускаем запрос дальше
+  return next(); // пропускаем запрос дальше
 };

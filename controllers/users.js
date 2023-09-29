@@ -19,9 +19,9 @@ const createUser = (req, res) => {
       .then((user) => {
         if (user) return res.status(409).send({ message: 'Такой пользователь уже существует' });
 
-        return userModel.create({ email, password: hash })
-          .then(() => {
-            res.status(201).send({ message: 'Пользователь успешно создан' });
+        return userModel.create({ email, password: hash, ...req.body })
+          .then((newUser) => {
+            res.status(201).send(newUser);
           })
           .catch((err) => {
             if (err instanceof mongoose.Error.ValidationError) {
@@ -127,7 +127,7 @@ const login = (req, res) => {
 
   return userModel.findOne({ email }).select('+password')
     .then((user) => {
-      if (!user) return res.status(403).send({ message: 'Такого пользователя не существует' });
+      if (!user) return res.status(401).send({ message: 'Такого пользователя не существует' });
       return bcrypt.compare(password, user.password)
         .then((isValidPassword) => {
           if (!isValidPassword) return res.status(401).send({ message: 'Логин или пароль неправильный' });
