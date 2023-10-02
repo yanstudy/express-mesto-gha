@@ -11,7 +11,7 @@ const { JWT_SECRET = 'some-secret-key' } = process.env;
 // Создание пользователя
 const createUser = (req, res) => {
   const {
-    email, password, name, about, avatar,
+    email, password, ...body
   } = req.body;
 
   if (!email || !password) res.status(VALIDATIONERROR_CODE).send({ message: 'логин или пароль отсутствует' });
@@ -22,10 +22,10 @@ const createUser = (req, res) => {
         if (user) return res.status(409).send({ message: 'Такой пользователь уже существует' }).send(user);
 
         return userModel.create({
-          email, password: hash, name, about, avatar,
+          email, password: hash, ...body,
         })
           .then((newUser) => {
-            const { HashPassword, ...userWithoutPassword } = newUser.toObject();
+            const { password: hashPassword, ...userWithoutPassword } = newUser.toObject();
             res.status(201).send(userWithoutPassword);
           })
           .catch((err) => {
