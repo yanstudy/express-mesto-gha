@@ -24,8 +24,8 @@ const createUser = (req, res) => {
         return userModel.create({
           email, password: hash, name, about, avatar,
         })
-          .then((newUser) => {
-            res.status(201).send(newUser);
+          .then(() => {
+            res.status(201).send({ message: 'Пользователь успешно создан' });
           })
           .catch((err) => {
             if (err instanceof mongoose.Error.ValidationError) {
