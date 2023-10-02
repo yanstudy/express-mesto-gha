@@ -24,8 +24,9 @@ const createUser = (req, res) => {
         return userModel.create({
           email, password: hash, name, about, avatar,
         })
-          .then(() => {
-            res.status(201).send({ message: 'Пользователь успешно создан' });
+          .then((newUser) => {
+            const { HashPassword, ...userWithoutPassword } = newUser.toObject();
+            res.status(201).send(userWithoutPassword);
           })
           .catch((err) => {
             if (err instanceof mongoose.Error.ValidationError) {
