@@ -10,7 +10,6 @@ const { JWT_SECRET = 'some-secret-key' } = process.env;
 
 // Создание пользователя
 const createUser = (req, res) => {
-  console.log('kjh')
   const {
     email, password, name, about, avatar,
   } = req.body;
