@@ -36,7 +36,7 @@ const deleteCardById = (req, res) => {
 
   cardsModel.findById(cardId)
     .then((currentCard) => {
-      if (currentCard.owner.toString() === owner) {
+      if (currentCard && currentCard.owner.toString() === owner) {
         cardsModel
           .findByIdAndDelete(cardId)
           .orFail(new Error('NotValidId'))
