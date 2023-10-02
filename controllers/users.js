@@ -10,6 +10,7 @@ const { JWT_SECRET = 'some-secret-key' } = process.env;
 
 // Создание пользователя
 const createUser = (req, res) => {
+  console.log('kjh')
   const {
     email, password, name, about, avatar,
   } = req.body;
@@ -116,7 +117,7 @@ const updateAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        res.status(VALIDATIONERROR_CODE).send({ message: err.message });
+        res.status(VALIDATIONERROR_CODE).send({ message: 'Некорректный URL' });
       } else {
         res.status(SERVERERROR_CODE).send({ message: 'Server error' });
       }
@@ -131,7 +132,7 @@ const login = (req, res) => {
 
   return userModel.findOne({ email }).select('+password')
     .then((user) => {
-      if (!user) return res.status(400).send({ message: 'Такого пользователя не существует' });
+      if (!user) return res.status(401).send({ message: 'Такого пользователя не существует' });
       return bcrypt.compare(password, user.password)
         .then((isValidPassword) => {
           if (!isValidPassword) return res.status(401).send({ message: 'Логин или пароль неправильный' });

@@ -14,7 +14,7 @@ router.patch('/users/me', updateUser);
 router.get('/users/me', getUserInfo);
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
-    link: Joi.string().required().min(2).max(30),
+    avatar: Joi.string().required(),
   }),
 }), updateAvatar);
 router.get('/users/:userId', getUserById);

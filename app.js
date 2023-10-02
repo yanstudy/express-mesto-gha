@@ -43,6 +43,18 @@ app.use(auth);
 
 app.use(appRouter);
 
+// Центральный обработчик ошибок
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+
+  res
+    .status(statusCode)
+    .send({
+      message: statusCode === 500
+        ? 'На сервере произошла ошибка'
+        : message,
+    });
+});
 app.use(errors());
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
