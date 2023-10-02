@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const cardsModel = require('../models/card');
+const NotFoundError = require('../errors/not-found-err');
 
 // Получить все карточки
 const getCards = (req, res) => {
@@ -36,7 +37,11 @@ const deleteCardById = (req, res) => {
 
   cardsModel.findById(cardId)
     .then((currentCard) => {
-      if (currentCard && currentCard.owner.toString() === owner) {
+      if (!currentCard) {
+        throw new NotFoundError('Такой карточки нет в базе данных');
+      }
+
+      if (currentCard.owner.toString() === owner) {
         cardsModel
           .findByIdAndDelete(cardId)
           .orFail(new Error('NotValidId'))
