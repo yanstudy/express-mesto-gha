@@ -2,13 +2,13 @@ const { celebrate, Joi } = require('celebrate');
 
 const checkIdCards = celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().alphanum().length(24),
+    cardId: Joi.string().hex().required(),
   }),
 });
 
 const checkIdUser = celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().alphanum().length(24),
+    userId: Joi.string().hex().required(),
   }),
 });
 
@@ -21,8 +21,8 @@ const checkNameAndLink = celebrate({
 
 const checkUserInfo = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
+    name: Joi.string().min(2).max(30).required(),
+    about: Joi.string().min(2).max(30).required(),
   }),
 });
 

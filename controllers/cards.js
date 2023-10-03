@@ -36,9 +36,7 @@ const deleteCardById = (req, res, next) => {
       }
 
       if (currentCard.owner.toString() === owner) {
-        cardsModel
-          .findByIdAndDelete(cardId)
-          .orFail(new Error('NotValidId'))
+        currentCard.deleteOne()
           .then(() => {
             res.status(200).send({ message: 'Карточка успешно удалена' });
           })
@@ -60,7 +58,7 @@ const addLike = (req, res, next) => {
 
   return cardsModel
     .findById(cardId)
-    .orFail(new Error('NotValidId'))
+    .orFail(new NotFoundError('Нет такой карточки'))
     .then(() => (cardsModel.findByIdAndUpdate(
       cardId,
       { $addToSet: { likes: req.user._id } },
@@ -82,7 +80,7 @@ const deleteLike = (req, res, next) => {
 
   cardsModel
     .findById(cardId)
-    .orFail(new Error('NotValidId'))
+    .orFail(new NotFoundError('Нет такой карточки'))
     .then(() => (cardsModel.findByIdAndUpdate(
       cardId,
       { $pull: { likes: req.user._id } }, // убрать _id из массива

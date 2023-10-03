@@ -1,20 +1,18 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const userModel = require('../models/user');
-const BadRequest = require('../errors/bad-request-err');
 const DbConflict = require('../errors/db-conflict-err');
 const AuthError = require('../errors/auth-err');
+const NotFoundError = require('../errors/not-found-err');
 
 const SAULT_ROUNDS = 10;
-const { JWT_SECRET = 'some-secret-key' } = process.env;
+const { JWT_SECRET } = process.env;
 
 // Создание пользователя
 const createUser = (req, res, next) => {
   const {
     email, password, ...body
   } = req.body;
-
-  if (!email || !password) throw new BadRequest('логин или пароль отсутствует');
 
   bcrypt.hash(password, SAULT_ROUNDS, (error, hash) => {
     userModel.findOne({ email })
@@ -50,7 +48,7 @@ const getUserById = (req, res, next) => {
   const { userId } = req.params;
   userModel
     .findById(userId)
-    .orFail(new Error('NotValidId'))
+    .orFail(new NotFoundError('Нет такого пользователя'))
     .then((user) => {
       res.status(200).send(user);
     })
@@ -74,7 +72,7 @@ const getUserInfo = (req, res, next) => {
 
   userModel
     .findById(userId)
-    .orFail(new Error('NotValidId'))
+    .orFail(new NotFoundError('Нет такого пользователя'))
     .then((user) => res.status(200).send(user))
     .catch(next);
 };
@@ -94,8 +92,6 @@ const updateAvatar = (req, res, next) => {
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
-  if (!email || !password) throw new BadRequest('логин или пароль отсутствует');
-
   return userModel.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) throw new AuthError('Такого пользователя не существует');
@@ -106,12 +102,10 @@ const login = (req, res, next) => {
 
           const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
 
-          res.cookie('jwt', token, {
+          return res.status(200).send({ message: 'Вы вошли в аккаунт' }).cookie('jwt', token, {
             maxAge: 3600000 * 24 * 7,
             httpOnly: true,
           });
-
-          return res.status(200).send({ token });
         });
     })
     .catch(next);
