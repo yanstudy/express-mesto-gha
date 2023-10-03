@@ -56,6 +56,8 @@ app.use((err, req, res, next) => {
     res.status(400).send({ message: err.message });
   } else if (err.message === 'NotValidId') {
     res.status(404).send({ message: err.message });
+  } else if (err.code === 11000) {
+    res.status(409).send({ message: err.message });
   } else {
     res
       .status(statusCode)
@@ -65,7 +67,6 @@ app.use((err, req, res, next) => {
           : message,
       });
   }
-
 
   return next();
 });

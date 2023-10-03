@@ -73,11 +73,11 @@ const addLike = (req, res, next) => {
 };
 
 // Убрать лайк с карточки
-const deleteLike = (req, res) => {
+const deleteLike = (req, res, next) => {
   const { cardId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(cardId)) {
-    res.status(400).send({ message: 'Карточка не найдена' });
+    throw new BadRequest('Карточка не найдена');
   }
 
   cardsModel
@@ -91,15 +91,7 @@ const deleteLike = (req, res) => {
     .then((like) => {
       res.status(200).send(like);
     })
-    .catch((err) => {
-      if (err.message === 'NotValidId') {
-        res.status(404).send({ message: 'Карточка не найдена' });
-      } else if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: err.message });
-      } else {
-        res.status(500).send({ message: 'Server error' });
-      }
-    });
+    .catch(next);
 };
 
 module.exports = {
