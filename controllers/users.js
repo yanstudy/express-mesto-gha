@@ -31,7 +31,8 @@ const createUser = (req, res, next) => {
             res.status(201).send(userWithoutPassword);
           })
           .catch(next);
-      });
+      })
+      .catch(next);
   });
 };
 

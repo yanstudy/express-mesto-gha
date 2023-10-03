@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const { celebrate, Joi, errors } = require('celebrate');
+const errorHandler = require('./middlewares/error-handler');
 
 const appRouter = require('./routes/index');
 const { login, createUser } = require('./controllers/users');
@@ -49,27 +50,7 @@ app.use(appRouter);
 app.use(errors());
 
 // Центральный обработчик ошибок
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-
-  if (err instanceof mongoose.Error.ValidationError) {
-    res.status(400).send({ message: err.message });
-  } else if (err.message === 'NotValidId') {
-    res.status(404).send({ message: err.message });
-  } else if (err.code === 11000) {
-    res.status(409).send({ message: err.message });
-  } else {
-    res
-      .status(statusCode)
-      .send({
-        message: statusCode === 500
-          ? 'На сервере произошла ошибка'
-          : message,
-      });
-  }
-
-  return next();
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
