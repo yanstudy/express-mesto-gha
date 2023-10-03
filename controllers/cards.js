@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const cardsModel = require('../models/card');
 const NotFoundError = require('../errors/not-found-err');
-const LackOfRights = require('../errors/lack-of-rights');
+const LackOfRights = require('../errors/lack-of-rights-err');
+const BadRequest = require('../errors/bad-request-err');
 
 // Получить все карточки
 const getCards = (req, res, next) => {
@@ -50,11 +51,11 @@ const deleteCardById = (req, res, next) => {
 };
 
 // Поставить лайк карточке
-const addLike = (req, res) => {
+const addLike = (req, res, next) => {
   const { cardId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(cardId)) {
-    return res.status(400).send({ message: 'Карточка не найдена' });
+    throw new BadRequest('Карточка не найдена');
   }
 
   return cardsModel
@@ -68,15 +69,7 @@ const addLike = (req, res) => {
     .then((like) => {
       res.status(201).send(like);
     })
-    .catch((err) => {
-      if (err.message === 'NotValidId') {
-        res.status(404).send({ message: 'Карточка не найдена' });
-      } else if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: err.message });
-      } else {
-        res.status(500).send({ message: 'Server error' });
-      }
-    });
+    .catch(next);
 };
 
 // Убрать лайк с карточки

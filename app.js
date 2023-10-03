@@ -54,17 +54,20 @@ app.use((err, req, res, next) => {
 
   if (err instanceof mongoose.Error.ValidationError) {
     res.status(400).send({ message: err.message });
+  } else if (err.message === 'NotValidId') {
+    res.status(404).send({ message: err.message });
+  } else {
+    res
+      .status(statusCode)
+      .send({
+        message: statusCode === 500
+          ? 'На сервере произошла ошибка'
+          : message,
+      });
   }
 
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
 
-  next();
+  return next();
 });
 
 app.listen(PORT, () => {
