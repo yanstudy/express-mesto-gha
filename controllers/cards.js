@@ -1,37 +1,30 @@
 const mongoose = require('mongoose');
 const cardsModel = require('../models/card');
 const NotFoundError = require('../errors/not-found-err');
+const LackOfRights = require('../errors/lack-of-rights');
 
 // Получить все карточки
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   cardsModel
     .find({})
     .then((cards) => {
       res.status(200).send(cards);
     })
-    .catch(() => {
-      res.status(500).send({ message: 'Server error' });
-    });
+    .catch(next);
 };
 
 // Создать новую карточку
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   cardsModel
     .create({ owner: req.user._id, ...req.body })
     .then((card) => {
       res.status(201).send(card);
     })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: err.message });
-      } else {
-        res.status(500).send({ message: 'Server error' });
-      }
-    });
+    .catch(next);
 };
 
 // Удалить карточку
-const deleteCardById = (req, res) => {
+const deleteCardById = (req, res, next) => {
   const { cardId } = req.params;
   const owner = req.user._id;
 
@@ -48,19 +41,12 @@ const deleteCardById = (req, res) => {
           .then(() => {
             res.status(200).send({ message: 'Карточка успешно удалена' });
           })
-          .catch((err) => {
-            if (err.message === 'NotValidId') {
-              res.status(404).send({ message: 'Карточка не найдена' });
-            } else if (err instanceof mongoose.Error.CastError) {
-              res.status(400).send({ message: err.message });
-            } else {
-              res.status(500).send({ message: 'Server error' });
-            }
-          });
+          .catch(next);
       } else {
-        res.status(403).send({ message: 'Отсутствуют права на удаление этой карточки' });
+        throw new LackOfRights('Отсутствуют права на удаление этой карточки');
       }
-    });
+    })
+    .catch(next);
 };
 
 // Поставить лайк карточке

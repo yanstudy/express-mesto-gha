@@ -49,8 +49,12 @@ app.use(appRouter);
 app.use(errors());
 
 // Центральный обработчик ошибок
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
+
+  if (err instanceof mongoose.Error.ValidationError) {
+    res.status(400).send({ message: err.message });
+  }
 
   res
     .status(statusCode)
@@ -59,6 +63,8 @@ app.use((err, req, res) => {
         ? 'На сервере произошла ошибка'
         : message,
     });
+
+  next();
 });
 
 app.listen(PORT, () => {
