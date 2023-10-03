@@ -1,20 +1,19 @@
 const jwt = require('jsonwebtoken');
 const AuthError = require('../errors/auth-err');
 
-const extractBearerToken = (header) => header.replace('Bearer ', '');
+const { JWT_SECRET } = process.env;
 
 module.exports = (req, res, next) => {
-  const { authorization } = req.headers;
+  const token = req.cookies.jwt;
 
-  if (!authorization || !authorization.startsWith('Bearer ')) {
+  if (!token) {
     return next(new AuthError('Необходима регистрация'));
   }
 
-  const token = extractBearerToken(authorization);
   let payload;
 
   try {
-    payload = jwt.verify(token, 'some-secret-key');
+    payload = jwt.verify(token, JWT_SECRET);
   } catch (e) {
     return next(new AuthError('Необходима регистрация'));
   }
