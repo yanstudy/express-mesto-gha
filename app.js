@@ -25,11 +25,12 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
-app.use(cookieParser());
 
 // Незащищённые роуты
 app.post('/signin', checkSigninInfo, login);
 app.post('/signup', checkSignupInfo, createUser);
+
+app.use(cookieParser());
 
 // Авторизация
 app.use(auth);

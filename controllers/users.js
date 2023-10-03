@@ -102,10 +102,10 @@ const login = (req, res, next) => {
 
           const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
 
-          return res.status(200).send({ message: 'Вы вошли в аккаунт' }).cookie('jwt', token, {
+          return res.status(200).cookie('jwt', token, {
             maxAge: 3600000 * 24 * 7,
             httpOnly: true,
-          });
+          }).end();
         });
     })
     .catch(next);
