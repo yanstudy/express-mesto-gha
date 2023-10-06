@@ -1,8 +1,6 @@
-const mongoose = require('mongoose');
 const cardsModel = require('../models/card');
 const NotFoundError = require('../errors/not-found-err');
 const LackOfRights = require('../errors/lack-of-rights-err');
-const BadRequest = require('../errors/bad-request-err');
 
 // Получить все карточки
 const getCards = (req, res, next) => {
