@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const userModel = require('../models/user');
-const DbConflict = require('../errors/db-conflict-err');
 const AuthError = require('../errors/auth-err');
 const NotFoundError = require('../errors/not-found-err');
 
@@ -15,20 +14,12 @@ const createUser = (req, res, next) => {
   } = req.body;
 
   bcrypt.hash(password, SAULT_ROUNDS, (error, hash) => {
-    userModel.findOne({ email })
-      .then((user) => {
-        if (user) {
-          throw new DbConflict('Такой пользователь уже существует');
-        }
-
-        return userModel.create({
-          email, password: hash, ...body,
-        })
-          .then((newUser) => {
-            const { password: hashPassword, ...userWithoutPassword } = newUser.toObject();
-            res.status(201).send(userWithoutPassword);
-          })
-          .catch(next);
+    userModel.create({
+      email, password: hash, ...body,
+    })
+      .then((newUser) => {
+        const { password: hashPassword, ...userWithoutPassword } = newUser.toObject();
+        res.status(201).send(userWithoutPassword);
       })
       .catch(next);
   });
@@ -43,6 +34,7 @@ const getUsers = (req, res, next) => {
     })
     .catch(next);
 };
+
 // Получить пользователя по id
 const getUserById = (req, res, next) => {
   const { userId } = req.params;

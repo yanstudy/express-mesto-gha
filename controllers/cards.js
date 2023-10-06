@@ -52,10 +52,6 @@ const deleteCardById = (req, res, next) => {
 const addLike = (req, res, next) => {
   const { cardId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(cardId)) {
-    throw new BadRequest('Карточка не найдена');
-  }
-
   return cardsModel
     .findById(cardId)
     .orFail(new NotFoundError('Нет такой карточки'))
@@ -73,10 +69,6 @@ const addLike = (req, res, next) => {
 // Убрать лайк с карточки
 const deleteLike = (req, res, next) => {
   const { cardId } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(cardId)) {
-    throw new BadRequest('Карточка не найдена');
-  }
 
   cardsModel
     .findById(cardId)
